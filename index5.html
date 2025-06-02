@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Time Chat App</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+    .chat-container { max-width: 600px; margin: 40px auto; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 80vh; }
+    .chat-messages { flex: 1; padding: 20px; overflow-y: auto; background: #eef1f5; }
+    .message { margin: 10px 0; padding: 10px; border-radius: 8px; max-width: 70%; }
+    .message.me { background-color: #cce5ff; align-self: flex-end; }
+    .message.other { background-color: #ffffff; align-self: flex-start; }
+    .chat-input { display: flex; border-top: 1px solid #ccc; }
+    .chat-input input { flex: 1; padding: 10px; border: none; border-radius: 0 0 0 10px; font-size: 16px; }
+    .chat-input button { padding: 10px 20px; border: none; background-color: #007bff; color: white; border-radius: 0 0 10px 0; cursor: pointer; }
+    .certificate { text-align: center; background: #e3f2fd; padding: 20px; margin-top: 20px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-messages" id="messages"></div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Type a message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+    <script>
+    const ws = new WebSocket('ws://localhost:8080');
+    const messagesDiv = document.getElementById('messages');
+    const input = document.getElementById('messageInput');
+
+    ws.onmessage = (event) => {
+      addMessage(event.data, 'other');
+    };
+
+    function sendMessage() {
+      const msg = input.value.trim();
+      if (msg === '') return;
+      addMessage(msg, 'me');
+      ws.send(msg);
+      input.value = '';
+    }
+
+    function addMessage(text, sender) {
+      const div = document.createElement('div');
+      div.className = `message ${sender}`;
+      div.textContent = text;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+  </script>
+</body>
+</html>
